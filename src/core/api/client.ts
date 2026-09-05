@@ -1,4 +1,5 @@
 import { getToken } from "../auth/storage"
+import type { RequestOptions } from "../auth/types"
 
 export class ApiError extends Error {
   status: number
@@ -9,13 +10,6 @@ export class ApiError extends Error {
     this.status = status
   }
 }
-
-type RequestOptions = Omit<RequestInit, 'body'> & {
-    body?: Record<string, unknown>
-    auth?: boolean
-}
-
-
 
 export async  function apiRequest<T>(
     path: string,

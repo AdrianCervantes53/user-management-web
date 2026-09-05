@@ -1,5 +1,6 @@
+import type { User } from "../../types/user";
 import { apiRequest } from "../api/client";
-import type { TokenResponse, User } from "./types";
+import type { TokenResponse } from "./types";
 
 export function login(username: string, password: string): Promise<TokenResponse> {
     return apiRequest<TokenResponse>(
@@ -22,4 +23,8 @@ export function signup(email: string, password:string): Promise<User> {
         method: 'POST',
         body: { email, password }
     })
+}
+
+export function getProfile(): Promise<User> {
+    return apiRequest<User>('/users/me')
 }
