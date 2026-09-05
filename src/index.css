@@ -13,7 +13,7 @@
   --primary-ink: #f0eeff;
   --secondary: #09223b;
   --danger: #9b2c2c;
-  --danger-soft: #f8e8e8;
+  --danger-soft: #fccaca;
   --shadow: 0 18px 50px rgba(20, 32, 26, 0.12);
   --radius: 18px;
   --radius-panel: 1.5rem;
@@ -119,9 +119,26 @@ body {
   background-color: var(--danger-soft);
 }
 
-.error {
-  background-color: var(--danger);
-  color: var(--danger-soft);
+.page-center {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.error-msg {
+  display: flex;
+  background-color: var(--danger-soft);
+  color: var(--danger);
+  border: 2px solid var(--danger);
+  border-radius: 10px;
+  height: 3rem;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
 }
 
 .login-btn {
