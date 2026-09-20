@@ -10,5 +10,4 @@ export function setToken(access_token:string): void {
 
 export function clearToken(): void {
     localStorage.removeItem(TOKEN_KEY)
-    console.log("token del")
 }

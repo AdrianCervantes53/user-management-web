@@ -18,10 +18,10 @@ export function logout(): Promise<void> {
     })
 }
 
-export function signup(email: string, password:string): Promise<User> {
+export function signup(username: string, email: string, password:string): Promise<User> {
     return apiRequest<User>('/users', {
         method: 'POST',
-        body: { email, password }
+        body: { username, email, password }
     })
 }
 

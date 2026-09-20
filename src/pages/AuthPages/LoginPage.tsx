@@ -1,9 +1,10 @@
 import { useEffect, useState, type FormEvent } from "react"
-import { getToken, setToken } from "../core/auth/storage"
+import { getToken, setToken } from "../../core/auth/storage"
 import { useNavigate, Link } from "react-router-dom"
-import { ApiError } from "../core/api/client"
-import { getProfile, login, login as loginRequest } from "../core/auth/api"
-import { useAuth } from "../core/auth/AuthContext"
+import { ApiError } from "../../core/api/client"
+import { getProfile, login, login as loginRequest } from "../../core/auth/api"
+import { useAuth } from "../../core/auth/AuthContext"
+import "./AuthPages.css"
 
 
 export default function LoginPage() {
@@ -25,7 +26,7 @@ export default function LoginPage() {
           login(me)
           navigate('/')
       } catch (err) {
-          setError(err instanceof ApiError ? err.message : "no se pudo iniciar sesion")
+          setError(err instanceof ApiError ? err.message : "Could not log in")
       } finally {
           setIsSubmitting(false)
       }
@@ -48,7 +49,7 @@ export default function LoginPage() {
                 placeholder='you@example' 
                 required />
             
-            <label htmlFor='password'>Password</label>
+            <label htmlFor='password'>Password:</label>
             <input 
                 type="password" 
                 id="password" 
