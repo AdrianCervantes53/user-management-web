@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { AuthContextValue, AuthState } from "./types";
-import { clearToken, getToken, setToken } from "./storage";
-import { getProfile, login as loginRequest } from "./api";
+import { getProfile, logout as logoutRequest } from "./api";
+import { onSessionExpired } from "../api/client";
 import type { User } from "../../types/user";
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
@@ -11,12 +11,13 @@ export function AuthProvider({children}: {children: ReactNode }) {
 
     useEffect(() => {
         let mounted = true
-        const token = getToken()
-        if (!token) {
-            setState({status: 'unauthenticated', user: null})
-            return
-        }
-        
+
+        const unsubscribe = onSessionExpired(() => {
+            if (mounted) {
+                setState({status: 'unauthenticated', user: null})
+            }
+        })
+
         getProfile()
         .then((me) => {
                 if (mounted) {
@@ -24,14 +25,14 @@ export function AuthProvider({children}: {children: ReactNode }) {
                 }
             })
             .catch(() => {
-                clearToken()
                 if (mounted) {
                     setState({status: 'unauthenticated', user: null})
                 }
             })
-        
+
         return () => {
             mounted = false
+            unsubscribe()
         }
     }, [])
 
@@ -39,8 +40,12 @@ export function AuthProvider({children}: {children: ReactNode }) {
         setState({status: 'authenticated', user: me})
     }, [])
 
-    const logout = useCallback(() => {
-        clearToken()
+    const logout = useCallback(async () => {
+        try {
+            await logoutRequest()
+        } catch {
+            // aunque falle la red, cerramos la sesión localmente
+        }
         setState({status: 'unauthenticated', user: null})
     }, [])
 
