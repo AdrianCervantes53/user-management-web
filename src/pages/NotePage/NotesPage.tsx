@@ -1,5 +1,3 @@
-import { Link } from "react-router-dom";
-import { clearToken } from "../../core/auth/storage";
 import { useAuth } from "../../core/auth/AuthContext";
 import { useState } from "react";
 import "./NotesPage.css";
@@ -55,7 +53,7 @@ export default function NotesPage() {
               <span>New note</span>
               </button>
           </div>
-          <Link to="/login" onClick={logout}>Logout</Link>
+          <button className="notes-logout-btn" onClick={logout}>Logout</button>
           </div>
       </header>
 
