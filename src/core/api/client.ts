@@ -1,5 +1,4 @@
-import { getToken } from "../auth/storage"
-import type { RequestOptions } from "../auth/types"
+import type { RequestOptions } from "./types"
 
 export class ApiError extends Error {
   status: number
@@ -11,12 +10,32 @@ export class ApiError extends Error {
   }
 }
 
+const API_URL = import.meta.env.VITE_API_URL
+
+let refreshPromise: Promise<void> | null = null
+let sessionExpiredHandler: (() => void) | null = null
+
+export function onSessionExpired(handler: () => void): () => void {
+    sessionExpiredHandler = handler
+    return () => { sessionExpiredHandler = null }
+}
+
+// El backend rota el refresh token en cada uso, así que dos refresh
+// simultáneos con el mismo token harían fallar al segundo: una sola
+// petición de refresh en vuelo, compartida por todos los callers.
+function refreshSession(): Promise<void> {
+    refreshPromise ??= fetch(`${API_URL}/auth/refresh`, { credentials: 'include' })
+        .then(res => { if (!res.ok) throw new ApiError(res.status, 'Session expired') })
+        .finally(() => { refreshPromise = null })
+    return refreshPromise
+}
+
 export async  function apiRequest<T>(
     path: string,
     options: RequestOptions = {},
     contentType: string = 'application/json'
 ): Promise<T> {
-    const { body, auth = true, headers, ...rest } = options
+    const { body, retry = true, headers, ...rest } = options
     const requestHeaders = new Headers(headers)
 
     if (body !== undefined) {
@@ -33,19 +52,23 @@ export async  function apiRequest<T>(
         throw new Error("body content is not a string")
     }
 
-    if (auth) {
-        const token = getToken()
-        if (token) {
-            requestHeaders.set('Authorization', `Bearer ${token}`)
-        }
-    }
-
-    const response = await fetch(`http://192.168.1.11:8000${path}`, {
+    const response = await fetch(`${API_URL}${path}`, {
         ...rest,
+        credentials: 'include',
         headers: requestHeaders,
         body: body === undefined ? undefined : action(body)
     })
-    
+
+    if (response.status === 401 && retry) {
+        try {
+            await refreshSession()
+        } catch {
+            sessionExpiredHandler?.()
+            throw new ApiError(401, 'Session expired')
+        }
+        return apiRequest<T>(path, { ...options, retry: false }, contentType)
+    }
+
     const text = await response.text()
     const data = text ? (JSON.parse(text) as unknown) : null
 
