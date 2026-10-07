@@ -1,7 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { login as loginRequest, signup } from "../../core/auth/api";
-import { setToken } from "../../core/auth/storage";
 import { useAuth } from "../../core/auth/AuthContext";
 import { ApiError } from "../../core/api/client";
 import "./AuthPages.css"
@@ -27,8 +26,7 @@ export default function RegisterPage() {
         }
         try {
             const me = await signup(username, email, password)
-            const token = await loginRequest(email, password)
-            setToken(token.access_token)
+            await loginRequest(email, password)
             login(me)
             navigate('/')
         } catch (err) {
