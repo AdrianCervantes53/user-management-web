@@ -1,8 +1,7 @@
-import { useEffect, useState, type FormEvent } from "react"
-import { getToken, setToken } from "../../core/auth/storage"
+import { useState, type FormEvent } from "react"
 import { useNavigate, Link } from "react-router-dom"
 import { ApiError } from "../../core/api/client"
-import { getProfile, login, login as loginRequest } from "../../core/auth/api"
+import { getProfile, login as loginRequest } from "../../core/auth/api"
 import { useAuth } from "../../core/auth/AuthContext"
 import "./AuthPages.css"
 
@@ -20,8 +19,7 @@ export default function LoginPage() {
       setIsSubmitting(true)
       setError(null)
       try {
-          const token = await loginRequest(email, password)
-          setToken(token.access_token)
+          await loginRequest(email, password)
           const me = await getProfile()
           login(me)
           navigate('/')
