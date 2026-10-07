@@ -1,12 +1,12 @@
 import type { User } from "../../types/user";
 import { apiRequest } from "../api/client";
-import type { TokenResponse } from "./types";
 
-export function login(username: string, password: string): Promise<TokenResponse> {
-    return apiRequest<TokenResponse>(
+export function login(username: string, password: string): Promise<void> {
+    return apiRequest<void>(
         '/auth/login', {
             method: 'POST',
-            body: { username, password}
+            body: { username, password},
+            retry: false
         },
         'application/x-www-form-urlencoded'
     )
@@ -14,7 +14,7 @@ export function login(username: string, password: string): Promise<TokenResponse
 
 export function logout(): Promise<void> {
     return apiRequest<void>('/auth/logout', {
-        method: 'POST'
+        retry: false
     })
 }
 
